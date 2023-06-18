@@ -1,74 +1,32 @@
-import copy
-
-def isSafeSpot(grid, i, j):
-    m = len(grid)
-    n = len(grid[0])
-
-    if i < 0 or j < 0 or i >= m or j >= n:
-        return False
-
-    for x in range(m):
-        if grid[x][j] == 1:
-            return False
-    
-    for y in range(n):
-        if grid[i][y] == 1:
-            return False
-
-    x, y = i, j
-    while x >= 0 and y >= 0:
-        if grid[x][y] == 1:
-            return False
-        
-        x -= 1 
-        y -= 1
-    
-    x, y = i, j
-
-    while x < m and y < n:
-        if grid[x][y] == 1:
-            return False
-        
-        x += 1
-        y += 1
-    
-    x, y = i, j
-
-    while x >= 0 and y < n:
-        if grid[x][y] == 1:
-            return False
-        
-        x -= 1
-        y += 1
-
-    x, y = i, j
-
-    while x < m and y >= 0:
-        if grid[x][y] == 1:
-            return False
-        
-        x += 1
-        y -= 1
-
-    return True
-    
-def solveNQueens(n):
-    grid = [[0 for __ in range(n)] for _ in range(n)]
-
-    def backtrack(count):
-        if count == 0:
-            return True
-        
+def solve(ans, col, n, board, leftrow, lowerdig, upperdig):
+    if col == n:
+        temp = []
         for i in range(n):
             for j in range(n):
-                if grid[i][j] != 1 and isSafeSpot(grid, i, j):
-                    grid[i][j] = 1
-                    if backtrack(count-1):
-                        return True
-                    grid[i][j] = 0
+                temp.append(board[i][j])
+        ans.append(temp)
+        return
+    
+    for row in range(n):
+        if leftrow[row] == 0 and lowerdig[row + col] == 0 and upperdig[n - 1 + col - row] == 0:
+            board[row][col] = 1
+            leftrow[row] = 1
+            lowerdig[row + col] = 1
+            upperdig[n - 1 + col - row] = 1
+            solve(ans, col + 1, n, board, leftrow, lowerdig, upperdig)
+            board[row][col] = 0
+            leftrow[row] = 0
+            lowerdig[row + col] = 0
+            upperdig[n - 1 + col - row] = 0
 
-        return False
 
-    backtrack(n)
-    return grid       
+def solveNQueens(n):
+    ans = []
+    board = [[0] * n for _ in range(n)]
+    leftrow = [0] * n
+    lowerdig = [0] * (2 * n - 1)
+    upperdig = [0] * (2 * n - 1)
 
+    solve(ans, 0, n, board, leftrow, lowerdig, upperdig)
+
+    return ans
